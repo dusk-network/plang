@@ -14,7 +14,7 @@ To compile the included circuit into its keys using random public parameters,
 run the following command:
 
 ```sh
-cargo run --release -- test.plang
+cargo run --release compile -p test.pp test.plang
 ```
 
 ## Disclaimer
