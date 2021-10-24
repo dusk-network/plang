@@ -1,8 +1,8 @@
 use std::fs;
 
-use plang::{PlangCircuit, PlangGrammar};
-use plang::error::Result;
 use plang::dusk_plonk::prelude::*;
+use plang::error::Result;
+use plang::{PlangCircuit, PlangGrammar};
 
 use rand_core::OsRng;
 
@@ -21,20 +21,11 @@ impl Circuit for TestCircuit {
         let a = composer.append_witness(self.a);
         let b = composer.append_witness(self.b);
 
-        let constraint = Constraint::new()
-            .left(1)
-            .right(1)
-            .public(-self.c)
-            .a(a)
-            .b(b);
+        let constraint = Constraint::new().left(1).right(1).public(-self.c).a(a).b(b);
 
         composer.append_gate(constraint);
 
-        let constraint = Constraint::new()
-            .mult(1)
-            .public(-self.d)
-            .a(a)
-            .b(b);
+        let constraint = Constraint::new().mult(1).public(-self.d).a(a).b(b);
 
         composer.append_gate(constraint);
 

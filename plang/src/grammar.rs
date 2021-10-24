@@ -1,8 +1,8 @@
 use crate::error::Result;
 
-use pest_derive::Parser;
 use pest::iterators::Pairs;
 use pest::Parser;
+use pest_derive::Parser;
 
 #[derive(Debug, Parser)]
 #[grammar = "../plang.pest"]

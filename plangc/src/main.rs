@@ -1,8 +1,8 @@
-use plang::{PlangCircuit, PlangGrammar};
 use plang::error::Result;
+use plang::{PlangCircuit, PlangGrammar};
 
-use std::path::PathBuf;
 use std::fs;
+use std::path::PathBuf;
 
 use structopt::StructOpt;
 

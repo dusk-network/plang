@@ -1,0 +1,10 @@
+[package]
+name = "plangc"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Eduardo Leegwater Simões <eduardols@protonmail.com>" ]
+
+[dependencies]
+plang = { path = "../plang" }
+structopt = "0.3.25"
+rand_core = "0.6.3"

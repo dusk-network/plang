@@ -389,6 +389,14 @@ dependencies = [
  "pest",
  "pest_derive",
  "rand_core",
+]
+
+[[package]]
+name = "plangc"
+version = "0.1.0"
+dependencies = [
+ "plang",
+ "rand_core",
  "structopt",
 ]
 

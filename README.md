@@ -9,6 +9,7 @@ It allows circuits represented in the language to be compiled into their prover
 key and verifier data.
 
 ## Usage
+
 To compile the included circuit into its keys using random public parameters,
 run the following command:
 
@@ -19,4 +20,3 @@ cargo run --release -- test.plang
 ## Disclaimer
 
 This is a prototype and as such not ready for production use. Use with caution.
-

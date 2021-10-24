@@ -4,9 +4,8 @@ use std::io;
 use std::num::ParseIntError;
 use std::string::FromUtf8Error;
 
-use pest::error::Error as PestError;
-use rand_core::Error as RandError;
 use dusk_plonk::error::Error as PlonkError;
+use pest::error::Error as PestError;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -16,7 +15,6 @@ pub enum Error {
     Utf8(FromUtf8Error),
     Pest(PestError<Rule>),
     Int(ParseIntError),
-    Rand(RandError),
     Plonk(PlonkError),
     TooManyTriTerms,
     SameTriVars,
@@ -40,12 +38,6 @@ impl From<FromUtf8Error> for Error {
 impl From<PlonkError> for Error {
     fn from(perr: PlonkError) -> Self {
         Self::Plonk(perr)
-    }
-}
-
-impl From<RandError> for Error {
-    fn from(rerr: RandError) -> Self {
-        Self::Rand(rerr)
     }
 }
 
