@@ -1,0 +1,19 @@
+[package]
+name = "plang"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dusk-plonk = "0.9.0-rc.0"
+pest = "2.1.3"
+pest_derive = "2.1.0"
+structopt = "0.3.25"
+rand_core = "0.6.3"
+
+[lib]
+name = "plang"
+path = "src/lib.rs"
+
+[[bin]]
+name = "plangc"
+path = "bin/plangc.rs"

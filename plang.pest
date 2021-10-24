@@ -1,0 +1,20 @@
+WHITESPACE = _{ " " }
+COMMENT = _{ "#" ~ (!NEWLINE ~ ANY)* ~ (NEWLINE | EOI) }
+
+var = @{ ASCII_ALPHA ~ ASCII_ALPHANUMERIC* }
+coeff = @{ ASCII_DIGIT+ }
+
+bi_term = { (coeff ~ "*")? ~ var }
+tri_term = { (coeff ~ "*")? ~ var ~ "*" ~ var }
+
+term = _{ tri_term | bi_term }
+sign = { "+" | "-" }
+
+left_side = _{ sign? ~ term ~ (sign ~ term){0, 3} }
+right_side = _{ sign? ~ var }
+
+newline = _{ NEWLINE }
+expr = { left_side ~ "=" ~ right_side  }
+line = _{ expr? ~ newline }
+
+main = _{ SOI ~ (expr? ~ newline)* ~ EOI }

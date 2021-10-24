@@ -1,0 +1,7 @@
+# Equations of the form:
+# 
+# q_m⋅a⋅b + q_l⋅a + q_r⋅b + q_o⋅o = PI
+#
+# Can be processed and compiled into prover and verifier keys.
+a + b = c
+a * b = d
