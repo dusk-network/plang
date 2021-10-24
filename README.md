@@ -16,3 +16,7 @@ run the following command:
 cargo run --release -- test.plang
 ```
 
+## Disclaimer
+
+This is a prototype and as such not ready for production use. Use with caution.
+
