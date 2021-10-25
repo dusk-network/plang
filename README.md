@@ -17,6 +17,19 @@ run the following command:
 cargo run --release compile -p test.pp test.plang
 ```
 
+Circuits are defined using a custom language in the defined in the pest
+[grammar file](./plang/plang.pest). Its contents for reference:
+
+```text
+# Equations of the form:
+# 
+# q_m⋅a⋅b + q_l⋅a + q_r⋅b + q_o⋅o = PI
+#
+# Can be processed and compiled into prover and verifier keys.
+a + b = c
+a * b = d
+```
+
 ## Disclaimer
 
 This is a prototype and as such not ready for production use. Use with caution.
