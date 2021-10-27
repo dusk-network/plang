@@ -43,7 +43,7 @@ impl Circuit for TestCircuit {
 
 #[test]
 fn produces_same_as_test() -> Result<()> {
-    let bytes = fs::read("test.plang")?;
+    let bytes = fs::read("../test.plang")?;
 
     let text = String::from_utf8(bytes)?;
     let grammar = PlangGrammar::new(&text)?;
