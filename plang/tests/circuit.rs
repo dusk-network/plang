@@ -4,8 +4,6 @@ use plang::dusk_plonk::prelude::*;
 use plang::error::Result;
 use plang::{PlangCircuit, PlangGrammar};
 
-use rand_core::OsRng;
-
 #[derive(Default)]
 struct TestCircuit {
     a: BlsScalar,
@@ -50,7 +48,7 @@ fn produces_same_as_test() -> Result<()> {
 
     let mut circuit = PlangCircuit::from_grammar(grammar)?;
 
-    let pp = PublicParameters::setup(circuit.padded_gates() << 1, &mut OsRng)?;
+    let pp = PublicParameters::from_slice(&fs::read("../test.pp")?)?;
     let (pk, vd) = circuit.compile(&pp)?;
 
     let mut circuit = TestCircuit::default();
