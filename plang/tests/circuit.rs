@@ -31,7 +31,7 @@ impl Circuit for TestCircuit {
     }
 
     fn public_inputs(&self) -> Vec<PublicInputValue> {
-        vec![self.c.into()]
+        vec![self.c.into(), self.d.into()]
     }
 
     fn padded_gates(&self) -> usize {

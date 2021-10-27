@@ -318,22 +318,22 @@ impl Circuit for PlangCircuit {
                             0 => {
                                 constraint = constraint.a(*wit);
                                 match bi.minus {
-                                    true => constraint = constraint.left(bi.coeff),
-                                    false => constraint = constraint.left(-bi.coeff),
+                                    true => constraint = constraint.left(-bi.coeff),
+                                    false => constraint = constraint.left(bi.coeff),
                                 }
                             }
                             1 => {
                                 constraint = constraint.b(*wit);
                                 match bi.minus {
-                                    true => constraint = constraint.right(bi.coeff),
-                                    false => constraint = constraint.right(-bi.coeff),
+                                    true => constraint = constraint.right(-bi.coeff),
+                                    false => constraint = constraint.right(bi.coeff),
                                 }
                             }
                             2 => {
                                 constraint = constraint.o(*wit);
                                 match bi.minus {
-                                    true => constraint = constraint.output(bi.coeff),
-                                    false => constraint = constraint.output(-bi.coeff),
+                                    true => constraint = constraint.output(-bi.coeff),
+                                    false => constraint = constraint.output(bi.coeff),
                                 }
                             }
                             _ => panic!("there should be max 3 bi terms"),
