@@ -1,8 +1,8 @@
-pub mod circuit;
-pub mod error;
-pub mod grammar;
+mod grammar;
+
+mod circuit;
+mod error;
 
 pub use circuit::PlangCircuit;
-pub use grammar::PlangGrammar;
-
 pub use dusk_plonk;
+pub use error::Error as PlangError;

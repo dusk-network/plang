@@ -1,5 +1,4 @@
-use plang::error::Result;
-use plang::{PlangCircuit, PlangGrammar};
+use plang::{PlangCircuit, PlangError};
 
 use std::fs;
 use std::path::PathBuf;
@@ -10,6 +9,8 @@ use rand_core::OsRng;
 
 use plang::dusk_plonk::circuit::Circuit;
 use plang::dusk_plonk::commitment_scheme::PublicParameters;
+
+type Result<T> = std::result::Result<T, PlangError>;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "plangc", about = "A language for plonk circuits")]
@@ -50,9 +51,7 @@ fn main() -> Result<()> {
             let bytes = fs::read(&circuit_file)?;
 
             let text = String::from_utf8(bytes)?;
-            let grammar = PlangGrammar::new(&text)?;
-
-            let mut circuit = PlangCircuit::from_grammar(grammar)?;
+            let mut circuit = PlangCircuit::parse(text)?;
 
             let pp = match params {
                 Some(params) => PublicParameters::from_slice(&fs::read(params)?)?,
@@ -71,9 +70,8 @@ fn main() -> Result<()> {
             let bytes = fs::read(&circuit_file)?;
 
             let text = String::from_utf8(bytes)?;
-            let grammar = PlangGrammar::new(&text)?;
+            let circuit = PlangCircuit::parse(text)?;
 
-            let circuit = PlangCircuit::from_grammar(grammar)?;
             let pp = PublicParameters::setup(circuit.padded_gates() << 1, &mut OsRng)?;
 
             let out = output.map_or(circuit_file.with_extension("pp"), |out| out);

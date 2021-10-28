@@ -4,6 +4,7 @@ use pest::iterators::Pairs;
 use pest::Parser;
 use pest_derive::Parser;
 
+/// This is the output of the pest parser for plang.
 #[derive(Debug, Parser)]
 #[grammar = "../plang.pest"]
 pub struct PlangGrammar<'a> {

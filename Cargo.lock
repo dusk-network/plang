@@ -388,7 +388,6 @@ dependencies = [
  "dusk-plonk",
  "pest",
  "pest_derive",
- "rand_core",
 ]
 
 [[package]]

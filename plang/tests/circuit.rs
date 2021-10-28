@@ -1,8 +1,9 @@
 use std::fs;
 
 use plang::dusk_plonk::prelude::*;
-use plang::error::Result;
-use plang::{PlangCircuit, PlangGrammar};
+use plang::{PlangCircuit, PlangError};
+
+type Result<T> = std::result::Result<T, PlangError>;
 
 #[derive(Default)]
 struct TestCircuit {
@@ -44,9 +45,7 @@ fn produces_same_as_test() -> Result<()> {
     let bytes = fs::read("../test.plang")?;
 
     let text = String::from_utf8(bytes)?;
-    let grammar = PlangGrammar::new(&text)?;
-
-    let mut circuit = PlangCircuit::from_grammar(grammar)?;
+    let mut circuit = PlangCircuit::parse(text)?;
 
     let pp = PublicParameters::from_slice(&fs::read("../test.pp")?)?;
     let (pk, vd) = circuit.compile(&pp)?;

@@ -1,7 +1,7 @@
 use crate::error::{Error as PlangError, Result};
 use crate::grammar::{PlangGrammar, Rule};
-use std::collections::HashMap;
 
+use std::collections::HashMap;
 use std::str::FromStr;
 
 use dusk_plonk::prelude::*;
@@ -13,10 +13,11 @@ pub struct PlangCircuit {
     vars: HashMap<String, WitnessOrPublic>,
 }
 
+/// Something that is either a witness or a public input.
 #[derive(Debug)]
 enum WitnessOrPublic {
     Witness(BlsScalar),
-    Public(BlsScalar),
+    PublicInput(BlsScalar),
 }
 
 impl Default for WitnessOrPublic {
@@ -26,7 +27,18 @@ impl Default for WitnessOrPublic {
 }
 
 impl PlangCircuit {
-    pub fn from_grammar(grammar: PlangGrammar<'_>) -> Result<Self> {
+    /// Parses a circuit from text.
+    pub fn parse<S: AsRef<str>>(text: S) -> Result<Self> {
+        let grammar = PlangGrammar::new(text.as_ref())?;
+        Self::from_grammar(grammar)
+    }
+
+    /// Parses a circuit from a grammar.
+    ///
+    /// It goes through each equation, arranging them all into a vector of
+    /// `PlangExpr`s, while inserting all variables into a map with with an
+    /// initial default value.
+    fn from_grammar(grammar: PlangGrammar<'_>) -> Result<Self> {
         let mut exprs = vec![];
 
         for pair in grammar.pairs() {
@@ -113,6 +125,7 @@ impl PlangCircuit {
             }
         }
 
+        // some checks on the expression to make sure its ok.
         check_different_tri_vars(&exprs)?;
         check_less_than_5_vars(&exprs)?;
         check_no_repeat_vars_in_bis(&exprs)?;
@@ -123,22 +136,33 @@ impl PlangCircuit {
     }
 }
 
+// Creates a map of names to witnesses or public inputs.
 fn vars_from_exprs(exprs: &[PlangExpr]) -> HashMap<String, WitnessOrPublic> {
     let mut vars = HashMap::new();
 
     for expr in exprs {
+        // if there is a PI in the expression (right equation side), also
+        // insert it in the map.
         if let Some(public) = &expr.public {
             vars.insert(
                 public.var.clone(),
-                WitnessOrPublic::Public(BlsScalar::zero()),
+                WitnessOrPublic::PublicInput(BlsScalar::zero()),
             );
         }
 
+        // A term of the form `q_m · a · b` contains two witnesses.
         if let Some(tri) = &expr.tri {
-            vars.insert(tri.lvar.clone(), Default::default());
-            vars.insert(tri.rvar.clone(), Default::default());
+            vars.insert(
+                tri.lvar.clone(),
+                WitnessOrPublic::Witness(BlsScalar::zero()),
+            );
+            vars.insert(
+                tri.rvar.clone(),
+                WitnessOrPublic::Witness(BlsScalar::zero()),
+            );
         }
 
+        // A term of the form `q_x · y` contains one witness.
         for bi in &expr.bis {
             vars.insert(bi.var.clone(), Default::default());
         }
@@ -147,6 +171,7 @@ fn vars_from_exprs(exprs: &[PlangExpr]) -> HashMap<String, WitnessOrPublic> {
     vars
 }
 
+// Check that `a != b` for all expressions the form `q_m · a · b`.
 fn check_different_tri_vars(exprs: &[PlangExpr]) -> Result<()> {
     for expr in exprs {
         if let Some(tri) = &expr.tri {
@@ -159,23 +184,22 @@ fn check_different_tri_vars(exprs: &[PlangExpr]) -> Result<()> {
     Ok(())
 }
 
-struct Void;
-
+// Check that each expression has less than 5 vars.
 fn check_less_than_5_vars(exprs: &[PlangExpr]) -> Result<()> {
     for expr in exprs {
         let mut vars = HashMap::with_capacity(5);
 
         if let Some(public) = &expr.public {
-            vars.insert(&public.var, Void);
+            vars.insert(&public.var, ());
         }
 
         if let Some(tri) = &expr.tri {
-            vars.insert(&tri.lvar, Void);
-            vars.insert(&tri.rvar, Void);
+            vars.insert(&tri.lvar, ());
+            vars.insert(&tri.rvar, ());
         }
 
         for bi in &expr.bis {
-            vars.insert(&bi.var, Void);
+            vars.insert(&bi.var, ());
         }
 
         if vars.len() == 5 {
@@ -186,6 +210,8 @@ fn check_less_than_5_vars(exprs: &[PlangExpr]) -> Result<()> {
     Ok(())
 }
 
+// Check that there's no terms of the form `q_x · y` where variables are have
+// the same name in the same expression.
 fn check_no_repeat_vars_in_bis(exprs: &[PlangExpr]) -> Result<()> {
     for expr in exprs {
         let mut nterms = 0;
@@ -193,7 +219,7 @@ fn check_no_repeat_vars_in_bis(exprs: &[PlangExpr]) -> Result<()> {
 
         for bi in &expr.bis {
             nterms += 1;
-            vars.insert(&bi.var, Void);
+            vars.insert(&bi.var, ());
         }
 
         if vars.len() != nterms {
@@ -204,18 +230,19 @@ fn check_no_repeat_vars_in_bis(exprs: &[PlangExpr]) -> Result<()> {
     Ok(())
 }
 
+// Check the public input is different from all other variables.
 fn check_public_different_from_other_vars(exprs: &[PlangExpr]) -> Result<()> {
     for expr in exprs {
         if let Some(public) = &expr.public {
             let mut vars = HashMap::with_capacity(5);
 
             if let Some(tri) = &expr.tri {
-                vars.insert(&tri.lvar, Void);
-                vars.insert(&tri.rvar, Void);
+                vars.insert(&tri.lvar, ());
+                vars.insert(&tri.rvar, ());
             }
 
             for bi in &expr.bis {
-                vars.insert(&bi.var, Void);
+                vars.insert(&bi.var, ());
             }
 
             if vars.contains_key(&public.var) {
@@ -230,7 +257,9 @@ fn check_public_different_from_other_vars(exprs: &[PlangExpr]) -> Result<()> {
 impl Circuit for PlangCircuit {
     const CIRCUIT_ID: [u8; 32] = [0u8; 32];
 
+    // Gadget implementation for a plang circuit.
     fn gadget(&mut self, composer: &mut TurboComposer) -> std::result::Result<(), Error> {
+        // Append all witnesses in the map to the composer.
         let witnesses = {
             let mut ws = HashMap::new();
 
@@ -243,16 +272,18 @@ impl Circuit for PlangCircuit {
             ws
         };
 
+        // For every expression build the constraint according to the existing terms.
         for expr in &self.exprs {
             let mut constraint = Constraint::new();
 
+            // If there is a public input add it as a `.public()` selector.
             if let Some(public) = &expr.public {
                 let val = match self
                     .vars
                     .get(&public.var)
                     .expect("public input isn't in map")
                 {
-                    WitnessOrPublic::Public(scalar) => scalar,
+                    WitnessOrPublic::PublicInput(scalar) => scalar,
                     _ => panic!("public is not as public in map"),
                 };
 
@@ -268,7 +299,8 @@ impl Circuit for PlangCircuit {
 
             let mut tri_wits = None;
 
-            // `q_m · a · b  + q_l · a + q_r · b + q_o · o = -PI`.
+            // If there is a term of the form `q_m · a · b` add it as a
+            // `mult()` selector.
             if let Some(tri) = &expr.tri {
                 let lwit = witnesses
                     .get(&tri.lvar)
@@ -294,6 +326,11 @@ impl Circuit for PlangCircuit {
                     .get(&bi.var)
                     .expect("bi term witness not in witness map");
 
+                // If there is a term of the form `q_m · a · b` then if there
+                // is a term of the form `q_l · a` or `q_r · b` add a left
+                // wire, or a right wire selector respectively. If there is
+                // not, then one just adds the selectors sequentially, as it
+                // produces the same mathematical constraint.
                 match tri_wits {
                     Some((lwit, rwit)) => match (wit == lwit, wit == rwit) {
                         (false, false) => {
@@ -354,7 +391,7 @@ impl Circuit for PlangCircuit {
         self.vars
             .iter()
             .filter_map(|(_, wop)| {
-                if let WitnessOrPublic::Public(pval) = wop {
+                if let WitnessOrPublic::PublicInput(pval) = wop {
                     return Some((*pval).into());
                 }
                 None
@@ -373,6 +410,8 @@ struct PlangExpr {
     bis: Vec<BiTerm>,
     public: Option<Public>,
 }
+
+// TODO find a better way of dealing with negative coefficients
 
 #[derive(Debug)]
 struct TriTerm {

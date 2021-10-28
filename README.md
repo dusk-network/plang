@@ -18,7 +18,7 @@ cargo run --release compile -p test.pp test.plang
 ```
 
 Circuits are declared using a custom language defined in the pest
-[grammar file](./plang/plang.pest). Its contents for reference:
+[grammar file](../plang/plang.pest). Its contents for reference:
 
 ```text
 # Equations of the form:

@@ -7,7 +7,7 @@ use std::string::FromUtf8Error;
 use dusk_plonk::error::Error as PlonkError;
 use pest::error::Error as PestError;
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub(crate) type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
