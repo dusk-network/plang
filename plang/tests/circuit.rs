@@ -42,12 +42,12 @@ impl Circuit for TestCircuit {
 
 #[test]
 fn produces_same_keys() -> Result<()> {
-    let bytes = fs::read("../test.plang")?;
+    let bytes = fs::read("./test.plang")?;
 
     let text = String::from_utf8(bytes)?;
     let mut circuit = PlangCircuit::parse(text)?;
 
-    let pp = PublicParameters::from_slice(&fs::read("../test.pp")?)?;
+    let pp = PublicParameters::from_slice(&fs::read("./test.pp")?)?;
     let (pk, vd) = circuit.compile(&pp)?;
 
     let mut circuit = TestCircuit::default();
@@ -61,12 +61,12 @@ fn produces_same_keys() -> Result<()> {
 
 #[test]
 fn produces_same_valid_proof() -> Result<()> {
-    let bytes = fs::read("../test.plang")?;
+    let bytes = fs::read("./test.plang")?;
 
     let text = String::from_utf8(bytes)?;
     let mut circuit = PlangCircuit::parse(text)?;
 
-    let pp = PublicParameters::from_slice(&fs::read("../test.pp")?)?;
+    let pp = PublicParameters::from_slice(&fs::read("./test.pp")?)?;
     let (pk, vd) = circuit.compile(&pp)?;
 
     // Solution to `test.plang`

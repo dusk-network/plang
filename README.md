@@ -10,15 +10,15 @@ key and verifier data.
 
 ## Usage
 
-To compile the included circuit into its keys using random public parameters,
-run the following command:
+To compile one of the included circuits into its keys using the provided public
+parameters, run the following command:
 
 ```sh
-cargo run --release compile -p test.pp test.plang
+cargo run --release compile -p plang/test.pp plang/test.plang
 ```
 
-Circuits are declared using a custom language defined in the `pest`
-[grammar file](./plang/plang.pest). Its contents for reference:
+Circuits are declared using a language defined in the `pest`
+[grammar file](./plang/plang.pest). The contents for of a test circuit:
 
 ```text
 # Equations of the form:
