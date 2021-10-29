@@ -16,6 +16,7 @@ pub enum Error {
     Pest(PestError<Rule>),
     Int(ParseIntError),
     Plonk(PlonkError),
+    NoSuchValue(String),
     TooManyTriTerms,
     SameTriVars,
     TooManyVars,

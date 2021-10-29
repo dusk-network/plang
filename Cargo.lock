@@ -394,6 +394,7 @@ dependencies = [
 name = "plangc"
 version = "0.1.0"
 dependencies = [
+ "dusk-bytes",
  "plang",
  "rand_core",
  "structopt",

@@ -41,7 +41,7 @@ impl Circuit for TestCircuit {
 }
 
 #[test]
-fn produces_same_as_test() -> Result<()> {
+fn produces_same_keys() -> Result<()> {
     let bytes = fs::read("../test.plang")?;
 
     let text = String::from_utf8(bytes)?;
@@ -55,6 +55,56 @@ fn produces_same_as_test() -> Result<()> {
 
     assert_eq!(pk.to_var_bytes(), tpk.to_var_bytes());
     assert_eq!(vd.to_var_bytes(), tvd.to_var_bytes());
+
+    Ok(())
+}
+
+#[test]
+fn produces_same_valid_proof() -> Result<()> {
+    let bytes = fs::read("../test.plang")?;
+
+    let text = String::from_utf8(bytes)?;
+    let mut circuit = PlangCircuit::parse(text)?;
+
+    let pp = PublicParameters::from_slice(&fs::read("../test.pp")?)?;
+    let (pk, vd) = circuit.compile(&pp)?;
+
+    // Solution to `test.plang`
+    let vals = vec![
+        ("a".to_owned(), 1),
+        ("b".to_owned(), 1),
+        ("c".to_owned(), 2),
+        ("d".to_owned(), 1),
+    ];
+
+    circuit.set_vals(vals)?;
+
+    let proof = circuit.prove(&pp, &pk, b"test")?;
+
+    let mut circuit = TestCircuit {
+        a: 1.into(),
+        b: 1.into(),
+        c: 2.into(),
+        d: 1.into(),
+    };
+
+    let prooft = circuit.prove(&pp, &pk, b"test")?;
+    assert_eq!(proof, prooft);
+
+    TestCircuit::verify(
+        &pp,
+        &vd,
+        &proof,
+        &[BlsScalar::from(2).into(), BlsScalar::from(1).into()],
+        b"test",
+    )?;
+    TestCircuit::verify(
+        &pp,
+        &vd,
+        &prooft,
+        &[BlsScalar::from(2).into(), BlsScalar::from(1).into()],
+        b"test",
+    )?;
 
     Ok(())
 }

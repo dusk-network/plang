@@ -1,7 +1,7 @@
 use crate::error::{Error as PlangError, Result};
 use crate::grammar::{PlangGrammar, Rule};
 
-use std::collections::HashMap;
+use std::collections::{hash_map::Entry, HashMap};
 use std::str::FromStr;
 
 use dusk_plonk::prelude::*;
@@ -31,6 +31,29 @@ impl PlangCircuit {
     pub fn parse<S: AsRef<str>>(text: S) -> Result<Self> {
         let grammar = PlangGrammar::new(text.as_ref())?;
         Self::from_grammar(grammar)
+    }
+
+    /// Sets the witness and public input values. Any value not set will remain
+    /// the default - 0. It returns an error if a value is not in the circuit.
+    pub fn set_vals<B: Into<BlsScalar>, I: IntoIterator<Item = (String, B)>>(
+        &mut self,
+        vals: I,
+    ) -> Result<()> {
+        for (name, val) in vals {
+            match self.vars.entry(name.clone()) {
+                Entry::Vacant(_) => return Err(PlangError::NoSuchValue(name)),
+                Entry::Occupied(mut entry) => match entry.get() {
+                    WitnessOrPublic::PublicInput(_) => {
+                        entry.insert(WitnessOrPublic::PublicInput(val.into()));
+                    }
+                    WitnessOrPublic::Witness(_) => {
+                        entry.insert(WitnessOrPublic::Witness(val.into()));
+                    }
+                },
+            }
+        }
+
+        Ok(())
     }
 
     /// Parses a circuit from a grammar.
@@ -388,15 +411,23 @@ impl Circuit for PlangCircuit {
     }
 
     fn public_inputs(&self) -> Vec<PublicInputValue> {
-        self.vars
+        let mut named_pinputs: Vec<(&String, PublicInputValue)> = self
+            .vars
             .iter()
-            .filter_map(|(_, wop)| {
+            .filter_map(|(name, wop)| {
                 if let WitnessOrPublic::PublicInput(pval) = wop {
-                    return Some((*pval).into());
+                    return Some((name, (*pval).into()));
                 }
                 None
             })
-            .collect()
+            .collect();
+
+        named_pinputs.sort_by(|(name1, _), (name2, _)| Ord::cmp(name1, name2));
+
+        let mut pinputs = Vec::with_capacity(named_pinputs.len());
+        pinputs.append(&mut named_pinputs.into_iter().map(|(_, v)| v).collect());
+
+        pinputs
     }
 
     fn padded_gates(&self) -> usize {

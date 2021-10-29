@@ -8,3 +8,4 @@ authors = [ "Eduardo Leegwater Simões <eduardols@protonmail.com>" ]
 plang = { path = "../plang" }
 structopt = "0.3.25"
 rand_core = "0.6.3"
+dusk-bytes = "0.1.5"
