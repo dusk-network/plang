@@ -136,6 +136,8 @@ impl PlangCircuit {
                     }
                 }
 
+                // TODO this could be enforced in the grammar - possibly simplifying this
+                //  function as well
                 if tris.len() > 1 {
                     return Err(PlangError::TooManyTriTerms);
                 }
