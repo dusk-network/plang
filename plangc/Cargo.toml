@@ -2,7 +2,7 @@
 name = "plangc"
 version = "0.1.0"
 edition = "2018"
-authors = [ "Eduardo Leegwater Simões <eduardols@protonmail.com>" ]
+authors = [ "Eduardo Leegwater Simões <eduardols@dusk.network>" ]
 
 [dependencies]
 plang = { path = "../plang" }

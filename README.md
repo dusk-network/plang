@@ -33,3 +33,19 @@ a * b = d
 ## Disclaimer
 
 This is a prototype and as such not ready for production use. Use with caution.
+
+## Licensing
+
+This code is licensed under Mozilla Public License Version 2.0 (MPL-2.0). Please
+see [LICENSE](./LICENSE) for further info.
+
+## About
+
+Designed by the [dusk](https://dusk.network) team.
+
+## Contributing
+
+- If you want to contribute to this repository/project please,
+  check [CONTRIBUTING.md](./CONTRIBUTING.md)
+- If you want to report a bug or request a new feature addition, please open an
+  issue on this repository.
